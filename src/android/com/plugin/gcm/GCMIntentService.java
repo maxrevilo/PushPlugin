@@ -73,6 +73,20 @@ public class GCMIntentService extends GCMBaseIntentService {
 			else {
 				extras.putBoolean("foreground", false);
 
+				if(extras.getString("data") != null) {
+	            	try {
+		            	JSONObject data = new JSONObject(extras.getString("data"));
+		            	Log.d(TAG, "onMessage - extras.data= " + data.toString());
+		            	extras.putString("title", data.getString("title"));
+		            	extras.putString("message", data.optString("message", null));
+		            	extras.putString("msgcnt", data.optString("msgcnt", null));
+		            	extras.putString("notId", data.optString("notId", null));
+		            	extras.putString("sound", data.optString("sound", null));
+	            	} catch(Exception e) {
+	            		Log.d(TAG, "onMessage - error reading extra.data " + e.getMessage());
+	            	}
+	            }
+
                 // Send a notification if there is a message
                 if (extras.getString("message") != null && extras.getString("message").length() != 0) {
                     createNotification(context, extras);
