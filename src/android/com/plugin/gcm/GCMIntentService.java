@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.content.ContentResolver;
+import android.net.Uri;
 
 import com.google.android.gcm.GCMBaseIntentService;
 
@@ -90,8 +92,14 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		
-		int defaults = Notification.DEFAULT_ALL;
-
+		int defaults;
+		String soundFilePath = extras.getString("sound");
+		if(soundFilePath != null) {
+			defaults = Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE;
+		} else {
+			defaults = Notification.DEFAULT_ALL;
+		}
+		
 		if (extras.getString("defaults") != null) {
 			try {
 				defaults = Integer.parseInt(extras.getString("defaults"));
@@ -119,9 +127,13 @@ public class GCMIntentService extends GCMBaseIntentService {
 		if (msgcnt != null) {
 			mBuilder.setNumber(Integer.parseInt(msgcnt));
 		}
+
+		if(soundFilePath != null) {
+			String basePath = ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/raw/";
+			mBuilder.setSound(Uri.parse(basePath + soundFilePath));
+		}
 		
 		int notId = 0;
-		
 		try {
 			notId = Integer.parseInt(extras.getString("notId"));
 		}
